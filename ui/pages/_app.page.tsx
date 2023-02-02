@@ -281,7 +281,7 @@ export default function App() {
 		  {mainContent}
 	  </div>
       <div> 
-      	<img src={'/genie.jpg'}/>
+      	<img src={process.env.PUBLIC_URL + "/genie.jpg"} width={400} height={400}/>
       </div>
     </div>
   );
