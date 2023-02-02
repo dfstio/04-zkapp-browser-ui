@@ -37,11 +37,15 @@ let key: { privateKey: string } = JSON.parse(
   await fs.readFile(config.keyPath, 'utf8')
 );
 let zkAppKey = PrivateKey.fromBase58(key.privateKey);
+let developerKey = PrivateKey.fromBase58(
+  'EKFVjvGhKJCQTusjS78UYSffvReqrGkS9RsN5ukZUg5n3DNJAheJ'
+);
 
 // set up Mina instance and contract we interact with
 const Network = Mina.Network(config.url);
 Mina.setActiveInstance(Network);
 let zkAppAddress = zkAppKey.toPublicKey();
+let developerAddress = developerKey.toPublicKey();
 let zkApp = new Add(zkAppAddress);
 
 // compile the contract to create prover keys
@@ -50,12 +54,30 @@ await Add.compile();
 
 // call update() and send transaction
 console.log('build transaction and create proof...');
-let tx = await Mina.transaction({ sender: zkAppAddress, fee: 0.1e9 }, () => {
-  zkApp.update();
-});
+let tx = await Mina.transaction(
+  { sender: developerAddress, fee: 0.1e9 },
+  () => {
+    zkApp.update();
+  }
+);
+
+function formatWinstonTime(ms: number): string {
+  if (ms === undefined) return '';
+  if (ms < 1000) return ms.toString() + ' ms';
+  if (ms < 60 * 1000)
+    return parseInt((ms / 1000).toString()).toString() + ' sec';
+  if (ms < 60 * 60 * 1000)
+    return parseInt((ms / 1000 / 60).toString()).toString() + ' min';
+  return parseInt((ms / 1000 / 60 / 60).toString()).toString() + ' h';
+}
+
+const startTime = Date.now();
 await tx.prove();
-console.log('send transaction...');
-let sentTx = await tx.sign([zkAppKey]).send();
+const endTime = Date.now();
+const delay = formatWinstonTime(endTime - startTime);
+
+console.log('Proof took', delay, ', now sending transaction...');
+let sentTx = await tx.sign([developerKey]).send();
 
 if (sentTx.hash() !== undefined) {
   console.log(`
