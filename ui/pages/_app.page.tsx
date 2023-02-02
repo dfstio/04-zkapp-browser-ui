@@ -160,7 +160,7 @@ export default function App() {
     await state.zkappWorkerClient!.proveUpdateTransaction();
 
     console.log('getting Transaction JSON...');
-    const txLink = await state.zkappWorkerClient!.getTransactionJSON();
+    const txLink : string = String(await state.zkappWorkerClient!.getTransactionJSON());
 
 /*
     console.log('requesting send transaction...');
@@ -263,11 +263,11 @@ export default function App() {
           {' '}
           Increase Valuation
         </button>
-        <div> Genie's jug valuation: {state.currentNum!.toString()} megayards </div>
+        <div> Jug valuation: {state.currentNum!.toString()} megayards </div>
         <button onClick={onRefreshCurrentNum}> Get Latest Valuation </button>
       	<div>{state.txMsg}</div>
       	<div>
-          <a href={state.txLink} target="_blank" rel="noreferrer"> {state.txLink}</a>
+          <a href={String(state.txLink)} target="_blank" rel="noreferrer"> {state.txLink}</a>
       	</div>
       </div>
     );
