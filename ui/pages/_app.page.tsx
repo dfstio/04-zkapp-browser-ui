@@ -141,7 +141,7 @@ export default function App() {
 
   const onSendTransaction = async () => {
     setState({ ...state, creatingTransaction: true });
-    console.log('sending a transaction...');
+    consolelog('creating a transaction...');
 
 	/*
     await state.zkappWorkerClient!.fetchAccount({
@@ -161,10 +161,10 @@ export default function App() {
 	
     await state.zkappWorkerClient!.createUpdateTransaction();
 
-    consolelog('\ncreating proof...');
+    consolelog('creating proof...');
     await state.zkappWorkerClient!.proveUpdateTransaction();
 
-    consolelog('\nSending transaction...');
+    consolelog('Sending transaction...');
     const txLink : string = String(await state.zkappWorkerClient!.getTransactionJSON());
 
 /*
@@ -187,16 +187,13 @@ export default function App() {
 */
 	const endTime = Date.now();
 	const delay = formatWinstonTime(endTime-startTime);
-	let txMsg = "\nFailure! Unable to send transaction";
-	if( txLink !== "") txMsg = `
-		 Success! Update transaction sent. Proof took ${delay}
-
-		 Your smart contract state will be updated
-		 as soon as the transaction is included in a block (approx. 3 minutes):
-		 
+	let txMsg = "Failure! Unable to send transaction";
+	if( txLink !== "") txMsg = `Success! Update transaction sent. Proof took ${delay}
+		Your smart contract state will be updated
+		 as soon as the transaction is included in a block (approx. 3 minutes)
 		 `;
-	consolelog(txMsg);
-    setState({ ...state, creatingTransaction: false, proofTime: delay, txLink });
+	console.log(txMsg);
+    setState({ ...state, creatingTransaction: false, proofTime: delay, txLink, txMsg });
   };
 
   // -------------------------------------------------------
