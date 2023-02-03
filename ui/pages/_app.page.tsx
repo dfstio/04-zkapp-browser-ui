@@ -88,7 +88,7 @@ export default function App() {
         consolelog('getting zkApp state...');
         await zkappWorkerClient.fetchAccount({ publicKey: zkappPublicKey });
         const currentNum = await zkappWorkerClient.getNum();
-        consolelog(' current state:', currentNum.toString());
+        console.log(' current state:', currentNum.toString());
         const proofTime = "approx. one minute";
 
         const txLink = "";
