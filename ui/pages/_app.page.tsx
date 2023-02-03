@@ -24,9 +24,16 @@ export default function App() {
     txMsg: null as null | string,
   });
 
+	function consolelog(msg: string) {
+	
+		console.log(msg);
+		setState({ ...state, txMsg: msg });
+	}
+
   // -------------------------------------------------------
   // Do Setup
 
+	
   useEffect(() => {
     (async () => {
       if (!state.hasBeenSetup) {
@@ -41,9 +48,9 @@ export default function App() {
 		}
 
 		const startTime = Date.now();
-        console.log('Loading SnarkyJS...');
+        consolelog('Loading SnarkyJS library...');
         await zkappWorkerClient.loadSnarkyJS();
-        console.log('done');
+        consolelog('done');
 
         await zkappWorkerClient.setActiveInstanceToBerkeley();
 /*
@@ -68,9 +75,9 @@ export default function App() {
 		const accountExists = true;
         await zkappWorkerClient.loadContract();
 
-        console.log('compiling zkApp');
+        consolelog('compiling zkApp');
         await zkappWorkerClient.compileContract();
-        console.log('zkApp compiled');
+        consolelog('zkApp compiled');
 
         const zkappPublicKey = PublicKey.fromBase58(
           'B62qkw5weoRr9pxGHT8ZmGo4VbQC7uHhvwXYvnxmkAFXya7kuJ7ztb6'
@@ -78,14 +85,13 @@ export default function App() {
 
         await zkappWorkerClient.initZkappInstance(zkappPublicKey);
 
-        console.log('getting zkApp state...');
+        consolelog('getting zkApp state...');
         await zkappWorkerClient.fetchAccount({ publicKey: zkappPublicKey });
         const currentNum = await zkappWorkerClient.getNum();
-        console.log('current state:', currentNum.toString());
+        consolelog(' current state:', currentNum.toString());
         const proofTime = "approx. one minute";
 
         const txLink = "";
-        const txMsg = "";
         
         const endTime = Date.now();
 		const compileTime = formatWinstonTime(endTime-startTime);
@@ -101,7 +107,6 @@ export default function App() {
           currentNum,
           proofTime,
           txLink,
-          txMsg,
           compileTime
         });
       }
@@ -156,10 +161,10 @@ export default function App() {
 	
     await state.zkappWorkerClient!.createUpdateTransaction();
 
-    console.log('creating proof...');
+    consolelog('\ncreating proof...');
     await state.zkappWorkerClient!.proveUpdateTransaction();
 
-    console.log('getting Transaction JSON...');
+    consolelog('\nSending transaction...');
     const txLink : string = String(await state.zkappWorkerClient!.getTransactionJSON());
 
 /*
@@ -182,7 +187,7 @@ export default function App() {
 */
 	const endTime = Date.now();
 	const delay = formatWinstonTime(endTime-startTime);
-	let txMsg = "Failure! Unable to send transaction";
+	let txMsg = "\nFailure! Unable to send transaction";
 	if( txLink !== "") txMsg = `
 		 Success! Update transaction sent. Proof took ${delay}
 
@@ -190,7 +195,8 @@ export default function App() {
 		 as soon as the transaction is included in a block (approx. 3 minutes):
 		 
 		 `;
-    setState({ ...state, creatingTransaction: false, proofTime: delay, txLink, txMsg });
+	consolelog(txMsg);
+    setState({ ...state, creatingTransaction: false, proofTime: delay, txLink });
   };
 
   // -------------------------------------------------------
@@ -229,7 +235,7 @@ export default function App() {
 
   let setupText = state.hasBeenSetup
     ? 'Genie ZK contract is ready (compilation took ' + state.compileTime + ')'
-    : 'Compiling Genie ZK contract (takes few minutes)...';
+    : 'Loading and compiling Genie ZK contract (takes few minutes)...';
   let setup = (
     <div>
       {' '}
@@ -265,10 +271,7 @@ export default function App() {
         </button>
         <div> Jug valuation: {state.currentNum!.toString()} megayards </div>
         <button onClick={onRefreshCurrentNum}> Get Latest Valuation </button>
-      	<div>{state.txMsg}</div>
-      	<div>
-          <a href={String(state.txLink)} target="_blank" rel="noreferrer"> {state.txLink}</a>
-      	</div>
+
       </div>
     );
   }
@@ -280,8 +283,12 @@ export default function App() {
 		  {accountDoesNotExist}
 		  {mainContent}
 	  </div>
+	 <div>{state.txMsg}</div>
+      	<div>
+          <a href={String(state.txLink)} target="_blank" rel="noreferrer"> {state.txLink}</a>
+      	</div>
       <div> 
-      	<img src={process.env.PUBLIC_URL + "/genie.jpg"} width={400} height={400}/>
+      	<img src="https://dfstio.github.io/04-zkapp-browser-ui/genie.jpg" width={400} height={400}/>
       </div>
     </div>
   );
